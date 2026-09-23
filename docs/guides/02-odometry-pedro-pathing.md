@@ -6,7 +6,7 @@ working on the robot.
 **What you'll have at the end:** a robot that knows where it is on the field
 and drives smooth curved paths to coordinates you name.
 
-> **Accuracy note.** Everything here was read from the Pedro Pathing **v3.0.0**
+> **Accuracy note.** Everything here was read from the Pedro Pathing **v3.0.0/3.0.1**
 > source and the official Pedro Quickstart, not from memory — Pedro 3 is a
 > substantial rewrite and older tutorials (and AI answers) describe Pedro 1/2,
 > which will not compile. The official docs are at
@@ -93,7 +93,7 @@ Follower follower = new Follower(localizer, drivetrain, algorithm);
 ```
 
 > **Argument order matters and is easy to get wrong.** The constructor is
-> `Follower(Localizer, Drivetrain, Algorithm)` — verified in the v3.0.0 source.
+> `Follower(Localizer, Drivetrain, Algorithm)` — verified in the v3.0.0 and v3.0.1 source.
 > A comment in the official Quickstart's `Constants.java` lists them as
 > `(Drivetrain, Localizer, Foresight)`, which is misleading. Trust the
 > compiler: both are objects, so a swap is a type error, not a silent bug.
@@ -105,68 +105,53 @@ real acceleration, which is what tuning measures.
 
 ---
 
-## 4. Gradle setup
+## 4. Gradle setup — already done
 
-Add to `build.dependencies.gradle`:
-
-```groovy
-repositories {
-    mavenCentral()
-    maven { url 'https://repo.dairy.foundation/releases/' }
-    google()
-}
-
-dependencies {
-    // ... the existing org.firstinspires.ftc lines stay ...
-
-    implementation 'com.pedropathing:revhub:3.0.0'   // pulls in core
-    implementation 'com.pedropathing:tuning:1.0.0'   // the tuners
-}
-```
-
-And in `build.common.gradle`, Pedro needs API 34:
+This repo is already configured to match the official
+[Pedro Quickstart](https://github.com/Pedro-Pathing/Quickstart):
 
 ```groovy
-compileSdk 34        // was 30
+// build.dependencies.gradle
+maven { url 'https://repo.dairy.foundation/releases/' }
+
+implementation 'com.pedropathing:revhub:3.0.1'   // Pedro 3 (pulls in core)
+implementation 'com.pedropathing:tuning:1.0.1'   // the autotuners
 ```
 
-> `build.common.gradle` is otherwise off-limits (see [CLAUDE.md](../../CLAUDE.md)).
-> This one line is the exception.
+plus `compileSdk 34` in both `build.common.gradle` and
+`FtcRobotController/build.gradle` — Pedro needs API 34 and the Quickstart sets
+it in both places.
 
-Then **Sync Project with Gradle Files** (the elephant icon) in Android Studio.
-
-`revhub` is the REV-hardware half and depends on `core`, so one line gets both.
-These coordinates and the `repo.dairy.foundation` repository are taken from the
-official Pedro Quickstart's own `build.dependencies.gradle` — note it is
-**not** the Maven repo Pedro 2 used.
+Note the repository: Pedro 3 lives on `repo.dairy.foundation`, **not** the
+Maven repo Pedro 2 used. Old setup instructions will point you at the wrong one.
 
 ---
 
 ## 5. Tune before you write paths
 
 **You cannot skip this, and you cannot copy another team's numbers.** Pedro
-needs to know how *your* robot accelerates, decelerates, and drifts. Those
-values depend on your weight, wheels, motors and gearing.
+needs to know how *your* robot accelerates, decelerates, and drifts — those
+depend on its weight, wheels, motors and gearing.
 
-Pedro 3 ships interactive tuners in the `tuning` artifact that walk you through
-it on the robot and **print the exact Java config to paste in**. That's the
-intended workflow — the tuner is the source of truth, not this guide.
+Pedro 3 ships interactive autotuners. They aren't Driver Station OpModes: the
+robot serves them as a web page at **http://192.168.43.1:10158** (connect a
+laptop to the Control Hub's Wi-Fi). Each walks you through with prompts, drives
+the robot itself where needed, and prints the exact Java to paste into
+`pedro/Constants.java`.
 
-Run them roughly in this order:
+| Order | Tuner | Finds |
+|---|---|---|
+| 1 | Mecanum Tuner | Which way each drive motor spins |
+| 2 | Pinpoint Tuner (or OTOS / three-wheel / …) | Pod directions and offsets |
+| 3 | Foresight Tuner | Top speed, natural deceleration, braking |
+| 4 | Tests | Confirms localization and path following work |
 
-| Tuner | What it finds |
-|---|---|
-| `MecanumTuner` | Which way each drive motor must spin |
-| `PinpointTuner` (or `OTOSTuner`, `ThreeWheelTuner`, …) | Pod directions and offsets |
-| `ForesightTuner` | Max velocity, natural deceleration, braking coefficients |
+They're registered in `pedro/Tuning.java` with the `@Tuner` annotation. The
+library is strict: each method must be `static`, take no arguments, and return
+exactly `Procedure`, or the app throws at startup.
 
-The tuners are registered through `TeamCode/.../pedro/Tuning.java` — see the
-Pedro docs for the current registration syntax, as it belongs to the `tuning`
-artifact rather than Pedro core.
-
-Do this **on a charged battery, on competition-like flooring**, with the robot
-at match weight. Tuning a bare chassis and then bolting on a 5-pound arm
-invalidates everything.
+**The step-by-step checklist for tuning day is
+[Guide 3](03-pedro-setup-and-autotune.md).**
 
 ---
 
@@ -224,10 +209,11 @@ public class Constants {
 }
 ```
 
-A fill-in version is at
-[`docs/templates/Constants.java`](../templates/Constants.java) — copy it into
-`TeamCode/src/main/java/org/firstinspires/ftc/teamcode/pedro/` once the Gradle
-step is done.
+The real file is
+`TeamCode/src/main/java/org/firstinspires/ftc/teamcode/pedro/Constants.java`.
+It differs from the sketch above in one useful way: it also exposes
+`localizer()` and `drivetrain()` factories, which the tuners share, and
+`create()` throws a clear message until Foresight is tuned.
 
 ---
 

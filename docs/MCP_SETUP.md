@@ -2,7 +2,7 @@
 
 [`ftc-mcp`](https://github.com/jackulau/ftcMCP) is an MCP server that feeds an AI
 assistant ~9,500 lines of verified FTC documentation: the full hardware API,
-Pedro Pathing 2.1, FTC Dashboard, Panels, Road Runner, FTCLib, and Gradle
+Pedro Pathing 2.1 (**outdated — this repo uses Pedro 3; don't trust the MCP for Pedro**), FTC Dashboard, Panels, Road Runner, FTCLib, and Gradle
 coordinates for every common library.
 
 It matters because models' training data for these libraries is out of date —

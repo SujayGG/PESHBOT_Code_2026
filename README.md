@@ -341,6 +341,7 @@ field-centric drive, subsystems, odometry, and autonomous with Pedro Pathing 3
 |---|---|
 | [Guide 1](docs/guides/01-teleop-mecanum.md) | TeleOp, motors, gamepads, mecanum maths, IMU, subsystems |
 | [Guide 2](docs/guides/02-odometry-pedro-pathing.md) | Odometry, Pedro Pathing 3, tuning, autonomous |
+| [Guide 3](docs/guides/03-pedro-setup-and-autotune.md) | Pedro setup day: autotuners, then autonomous from ftc.peshcompsci.org |
 
 The exercises live in `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/exercises/`
 and appear on the Driver Station under the group **Exercises**. They compile and

@@ -21,9 +21,9 @@ without it.
 | **4** | IMU, field-centric drive | [Guide 1](01-teleop-mecanum.md) §8–10 | `Exercise3_FieldCentric` | 1–2 sessions |
 | **5** | Subsystems, non-blocking loops, P control | [Guide 1](01-teleop-mecanum.md) §11–12 | `Exercise4_Subsystem` + TeleOp | 2–3 sessions |
 | **6** | Why timed autonomous fails; what odometry is | [Guide 2](02-odometry-pedro-pathing.md) §1–3 | Nothing — just read | 1 session |
-| **7** | Pedro Pathing 3 setup and tuning | [Guide 2](02-odometry-pedro-pathing.md) §4–7 | Run the tuners on the robot | 2–3 sessions |
-| **8** | Poses, paths, a TeleOp that knows where it is | [Guide 2](02-odometry-pedro-pathing.md) §8–9 | `docs/templates/PedroTeleOp.java` | 1–2 sessions |
-| **9** | State-machine autonomous | [Guide 2](02-odometry-pedro-pathing.md) §10–11 | `docs/templates/PedroAuto.java` | 3+ sessions |
+| **7** | Pedro Pathing 3 setup and tuning | [Guide 3](03-pedro-setup-and-autotune.md) | Run the autotuners at `192.168.43.1:10158` | 1–2 sessions |
+| **8** | Poses, paths, heading modes | [Guide 2](02-odometry-pedro-pathing.md) §8–9 | Tests → Line/Curve on the tuner page | 1 session |
+| **9** | Autonomous from ftc.peshcompsci.org | [Guide 3](03-pedro-setup-and-autotune.md) + Guide 2 §10–11 | Route in `pedro/AutoPaths.java`, run **Pedro Auto** | 3+ sessions |
 | **10** | Callbacks, AprilTag vision, real optimisation | [Guide 2](02-odometry-pedro-pathing.md) §12 | Build the auto you actually want | Rest of season |
 
 Stages 0–5 make you useful to the team. 6–9 make you a programmer the team
@@ -46,10 +46,16 @@ Why `sleep()`-based autonomous fails at competition, what odometry is, and how
 to set up, tune and use **Pedro Pathing 3** to drive to field coordinates.
 
 > Pedro 3 is a rewrite — its API differs substantially from Pedro 1 and 2.
-> Guide 2 was written from the v3.0.0 source, so prefer it over any older
+> Guides 2 and 3 were written from the v3.0.x source, so prefer it over any older
 > tutorial you find, and be sceptical of AI answers about Pedro: most were
 > trained on Pedro 2 and will confidently hand you code that doesn't compile.
 
+
+### [Guide 3 — Pedro setup day and autotune](03-pedro-setup-and-autotune.md)
+
+The hands-on checklist: open the tuner page, run each autotuner, paste its
+output, verify with Tests, then build an autonomous on ftc.peshcompsci.org and
+drop it into `pedro/AutoPaths.java`.
 ---
 
 ## Exercises
@@ -101,11 +107,21 @@ Each TODO explains *why*, not just what to type. Read that part — the guides
 and exercises are trying to make you someone who can debug a robot at 11pm
 before a competition, not someone who has a working file.
 
-## Templates
+## Pedro Pathing — already installed
 
-`docs/templates/` holds Pedro Pathing files to copy into `TeamCode` **after**
-you've added the Pedro dependency (Guide 2 §4). They're kept outside `TeamCode`
-on purpose — dropped in early they'd break the build for everyone else.
+Pedro Pathing 3.0.1 and its autotuner are in the build, with the tuners
+registered and a route-runner autonomous ready. Files, in
+`TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`:
+
+| File | Role |
+|---|---|
+| `pedro/Constants.java` | Tuned robot values — filled in from the autotuners |
+| `pedro/Tuning.java` | Registers the tuners served at `192.168.43.1:10158` |
+| `pedro/procedures/` | The official tuner procedures, unmodified from Pedro's Quickstart |
+| `pedro/AutoPaths.java` | The autonomous route — paste from ftc.peshcompsci.org |
+| `opmodes/PedroAuto.java` | Runs `AutoPaths` path by path |
+
+Start at [Guide 3](03-pedro-setup-and-autotune.md).
 
 ---
 

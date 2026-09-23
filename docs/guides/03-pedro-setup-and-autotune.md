@@ -208,3 +208,25 @@ built from it across the field's midline.
 | Route looks mirrored/rotated | Site's coordinate convention differs from Pedro's |
 | Won't compile after pasting route | Pedro 2 syntax from the site or an old tutorial |
 | Worked yesterday, overshoots today | Battery, or the robot's weight changed — retune Foresight |
+| Restart loop: *Fatal class locating error occurred while running Sloth* … `Invalid name: org/firstinspires/…/SomeName` | An old **OnBot Java** program is on the hub. Sloth 0.3.2 (pulled in by Pedro's tuner) crashes on any compiled OnBot Java class. Back up and delete it — see below |
+
+### OnBot Java and the Sloth crash
+
+Pedro's tuning library brings in Sloth, and Sloth 0.3.2 has a bug: when it
+reads compiled OnBot Java classes it passes names like
+`org/firstinspires/ftc/teamcode/X` (slashes) instead of `…teamcode.X`, which
+Java rejects, and the robot stops on every restart. Code built in Android
+Studio is unaffected — only OnBot Java programs stored on the hub trigger it.
+
+Fix, with the laptop on the robot's Wi-Fi:
+
+```powershell
+adb connect 192.168.43.1:5555
+adb shell ls -R /sdcard/FIRST/java/src           # see what's there
+adb pull /sdcard/FIRST/java/src .\onbotjava-backup   # keep a copy
+adb shell rm -r /sdcard/FIRST/java/build         # compiled OnBot Java output
+adb shell rm -r /sdcard/FIRST/java/src/org       # the OnBot Java sources
+```
+
+Then power-cycle the hub. Don't build anything in OnBot Java while Pedro's
+tuner is installed — write code in Android Studio instead.

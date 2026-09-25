@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.pedro.procedures;
 
+import org.firstinspires.ftc.teamcode.util.DriveConstants;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
+import com.pedropathing.revhub.drivetrains.MecanumConfig;
 import com.pedropathing.math.Pose;
 import com.pedropathing.revhub.localizers.Encoder;
 import com.pedropathing.revhub.localizers.RevHubIMU;
@@ -19,9 +22,9 @@ import java.util.List;
 
 public class ThreeWheelIMUTuner extends Procedure {
 
-    private static String leftEncoderName = "lf";
-    private static String rightEncoderName = "rr";
-    private static String strafeEncoderName = "lr";
+    private static String leftEncoderName = DriveConstants.FRONT_LEFT_NAME;
+    private static String rightEncoderName = DriveConstants.BACK_RIGHT_NAME;
+    private static String strafeEncoderName = DriveConstants.BACK_LEFT_NAME;
     private static String imuName = "imu";
     private static RevHubOrientationOnRobot.LogoFacingDirection logoDirection =
             RevHubOrientationOnRobot.LogoFacingDirection.UP;
@@ -36,9 +39,9 @@ public class ThreeWheelIMUTuner extends Procedure {
     public void run() throws InterruptedException {
         Inputs setup = inputs("Encoder + IMU Setup",
                 "Set encoder motor ports, IMU HardwareMap name, and Control Hub orientation.");
-        Inputs.Field<String> leftEncoder = setup.s("Left Encoder Motor Name").withDefault("lf");
-        Inputs.Field<String> rightEncoder = setup.s("Right Encoder Motor Name").withDefault("rr");
-        Inputs.Field<String> strafeEncoder = setup.s("Strafe Encoder Motor Name").withDefault("lr");
+        Inputs.Field<String> leftEncoder = setup.s("Left Encoder Motor Name").withDefault(DriveConstants.FRONT_LEFT_NAME);
+        Inputs.Field<String> rightEncoder = setup.s("Right Encoder Motor Name").withDefault(DriveConstants.BACK_RIGHT_NAME);
+        Inputs.Field<String> strafeEncoder = setup.s("Strafe Encoder Motor Name").withDefault(DriveConstants.BACK_LEFT_NAME);
         Inputs.Field<String> imu = setup.s("IMU HardwareMap Name").withDefault("imu");
         Inputs.Field<RevHubOrientationOnRobot.LogoFacingDirection> logo =
                 setup.e("Logo Facing Direction", RevHubOrientationOnRobot.LogoFacingDirection.class)
@@ -188,11 +191,18 @@ public class ThreeWheelIMUTuner extends Procedure {
         for (LynxModule hub : map.getAll(LynxModule.class)) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
-        for (String name : new String[]{"lf", "lr", "rf", "rr"}) {
-            DcMotorEx motor = map.get(DcMotorEx.class, name);
+        // PESH change: upstream hard-codes the Pedro author's own drive motor
+        // names here, which crashes on any robot named differently ("Unable to
+        // find a hardware device with name lf"). Use the names from Constants.
+        MecanumConfig drive = Constants.drivetrainConfig;
+        String[] names = {drive.frontLeftName.get(), drive.backLeftName.get(),
+                drive.frontRightName.get(), drive.backRightName.get()};
+        DcMotorSimple.Direction[] directions = {drive.frontLeftDirection.get(), drive.backLeftDirection.get(),
+                drive.frontRightDirection.get(), drive.backRightDirection.get()};
+        for (int i = 0; i < names.length; i++) {
+            DcMotorEx motor = map.get(DcMotorEx.class, names[i]);
             motor.setPower(0);
-            motor.setDirection(name.equals("lf") || name.equals("lr")
-                    ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD);
+            motor.setDirection(directions[i]);
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         }
         return new ThreeWheelIMULocalizer(map, config);

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.pedro.procedures;
 
+import org.firstinspires.ftc.teamcode.util.DriveConstants;
 import com.pedropathing.math.Pose;
 import com.pedropathing.revhub.localizers.Encoder;
 import com.pedropathing.revhub.localizers.RevHubIMU;
@@ -21,8 +22,8 @@ public class TwoWheelTuner extends Procedure {
     @Override
     public void run() throws InterruptedException {
         Inputs setup = inputs("Setup", "Set encoder, IMU, and Control Hub orientation");
-        Inputs.Field<String> forwardPodName = setup.s("Forward Encoder Motor Name").withDefault("lf");
-        Inputs.Field<String> strafePodName = setup.s("Strafe Encoder Motor Name").withDefault("rr");
+        Inputs.Field<String> forwardPodName = setup.s("Forward Encoder Motor Name").withDefault(DriveConstants.FRONT_LEFT_NAME);
+        Inputs.Field<String> strafePodName = setup.s("Strafe Encoder Motor Name").withDefault(DriveConstants.BACK_RIGHT_NAME);
         Inputs.Field<String> imuName = setup.s("IMU HardwareMap Name").withDefault("imu");
         Inputs.Field<RevHubOrientationOnRobot.LogoFacingDirection> logoDirection =
                 setup.e("Logo Facing Direction", RevHubOrientationOnRobot.LogoFacingDirection.class)

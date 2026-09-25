@@ -102,8 +102,12 @@ from `repo.dairy.foundation`, matching the official Pedro Quickstart. Code is in
 - The autonomous route lives in `pedro/AutoPaths.java` (pasted from
   ftc.peshcompsci.org); `opmodes/PedroAuto.java` runs it and shouldn't need
   editing for a new route.
-- `pedro/procedures/` is copied unmodified from the Quickstart — update by
-  re-copying, not by editing.
+- `pedro/procedures/` is copied from the Quickstart — update by re-copying,
+  not by editing. One local change must survive any re-copy: upstream
+  `ThreeWheelTuner`/`ThreeWheelIMUTuner` hard-code the author's drive motor
+  names (`lf`, `lr`, `rf`, `rr`); ours read them from `Constants.drivetrainConfig`
+  (marked `PESH change`). Re-apply it, or those tuners crash with "Unable to
+  find a hardware device with name lf".
 
 ## Git
 

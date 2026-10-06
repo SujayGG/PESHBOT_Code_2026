@@ -121,7 +121,9 @@ registered and a route-runner autonomous ready. Files, in
 | `pedro/AutoPaths.java` | The autonomous route — paste from ftc.peshcompsci.org |
 | `opmodes/PedroAuto.java` | Runs `AutoPaths` path by path |
 
-Start at [Guide 3](03-pedro-setup-and-autotune.md).
+Start at [Guide 3](03-pedro-setup-and-autotune.md). Every difference from
+the official Pedro sources is listed in
+[`docs/PEDRO_PATCH_REPORT.md`](../PEDRO_PATCH_REPORT.md).
 
 ---
 

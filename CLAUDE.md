@@ -97,13 +97,17 @@ from `repo.dairy.foundation`, matching the official Pedro Quickstart. Code is in
 - Tuners are registered in `pedro/Tuning.java` with `@Tuner` on `static`,
   zero-arg methods returning exactly `Procedure`; served at
   http://192.168.43.1:10158, not on the Driver Station.
+- `Constants.ODOMETRY` picks the localizer (`PINPOINT` or `THREE_WHEEL_IMU`);
+  `threeWheelIMUConfig` and `foresightConfig` stay `null` until tuned.
 - Never invent or copy values into `Constants.foresightConfig` — they come only
   from the Foresight Tuner on this robot.
 - The autonomous route lives in `pedro/AutoPaths.java` (pasted from
   ftc.peshcompsci.org); `opmodes/PedroAuto.java` runs it and shouldn't need
   editing for a new route.
-- `pedro/procedures/` is copied from the Quickstart — update by re-copying,
-  not by editing. One local change must survive any re-copy: upstream
+- `pedro/procedures/` is copied from the Quickstart (currently `2df9646`,
+  2026-09-30) — update by re-copying, not by editing. Every patch and how to
+  re-sync is in `docs/PEDRO_PATCH_REPORT.md`. One local change must survive any
+  re-copy: upstream
   `ThreeWheelTuner`/`ThreeWheelIMUTuner` hard-code the author's drive motor
   names (`lf`, `lr`, `rf`, `rr`); ours read them from `Constants.drivetrainConfig`
   (marked `PESH change`). Re-apply it, or those tuners crash with "Unable to

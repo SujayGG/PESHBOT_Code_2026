@@ -88,17 +88,44 @@ continuing — every later step depends on this.
 
 ## Step 2 — Localizer tuner
 
-Run **only the one for your hardware**. For a goBILDA Pinpoint:
+Run **only the one for your hardware**, and set `ODOMETRY` in `pedro/Constants.java`
+to match (`PINPOINT` or `THREE_WHEEL_IMU`; the default is `THREE_WHEEL_IMU`).
 
+### Three odometry pods + the Hub's IMU ("Three Wheel + IMU Tuner")
+
+You need **two forward-facing pods and one sideways pod**, touching the floor.
+On the tuner page, each encoder box is the **name of the motor port that pod's
+encoder is plugged into** (the boxes start with your drive-motor names from
+`DriveConstants`; change them to match your wiring).
+
+- [ ] Run **Three Wheel + IMU Tuner** and follow the prompts
+- [ ] Paste the printed block over `threeWheelIMUConfig = null;` in `Constants.java`
+- [ ] **Rename** the pasted `localizerConfig` to `threeWheelIMUConfig` (the tuner
+      always prints that name; ours is separate so a Pinpoint config can live
+      alongside it)
+- [ ] Alt+Enter on each red name to import it: `Encoder`, `RevHubIMU`
+      (`com.pedropathing.revhub.localizers`) and `RevHubOrientationOnRobot`
+      (`com.qualcomm.hardware.rev`)
+- [ ] Redeploy
+
+> **Mecanum drive wheels are not odometry pods.** They slip when the robot
+> accelerates and none points sideways, so using them as pods gives bad numbers.
+> Without real pods (or a Pinpoint/OTOS), use `MecanumAutoBasic` instead.
+
+### goBILDA Pinpoint
+
+- [ ] Set `ODOMETRY = Odometry.PINPOINT`
 - [ ] **Pinpoint Tuner**: pod type, then push the robot forward, push it left,
       then spin it 180° counter-clockwise, when asked
 - [ ] Paste the printed `localizerConfig` over the one in `Constants.java`
 - [ ] Redeploy
 
-Using something else (OTOS, three-wheel, two-wheel, OctoQuad)? Run that tuner,
-then in `Constants.java` change `localizerConfig`'s type to the matching
-`…Config` class and `localizer()` to the matching `…Localizer`. The rest of the
-codebase goes through `Constants.localizer()`, so nothing else changes.
+### Something else (OTOS, two-wheel, three-wheel without IMU, OctoQuad)
+
+Run that tuner, then add a value to the `Odometry` enum, a config field, and a
+case in `localizer()` — the Pinpoint and three-wheel ones show the pattern. The
+rest of the codebase goes through `Constants.localizer()`, so nothing else
+changes.
 
 ### Check it before going further
 
@@ -201,6 +228,9 @@ built from it across the field's midline.
 | Symptom | Likely cause |
 |---|---|
 | `IllegalStateException: Pedro isn't tuned yet` on INIT | Foresight output not pasted into `Constants.java` |
+| `IllegalStateException: The Three Wheel + IMU localizer isn't tuned yet` | Run that tuner and paste into `threeWheelIMUConfig`, or switch `ODOMETRY` |
+| `Unable to find a hardware device with name "…"` in a tuner | That name isn't in the robot configuration. Drive-motor names come from `util/DriveConstants.java`; encoder names from what you typed on the tuner page |
+| Pasted tuner output won't compile (`imuOrientation` doesn't exist) | Old copy of the tuner. The current one prints `c.imu.set(new RevHubIMU(...))`; update per `docs/PEDRO_PATCH_REPORT.md` |
 | Tuner page won't load | Laptop not on the robot's Wi-Fi, or app not running |
 | Startup error mentioning `@Tuner` | A `Tuning.java` method isn't `static`, has parameters, or returns something other than `Procedure` |
 | Robot doesn't move in auto | Missed a redeploy after pasting, or odometry reading 0 |

@@ -7,11 +7,14 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Localizer;
 import com.pedropathing.revhub.drivetrains.Mecanum;
 import com.pedropathing.revhub.drivetrains.MecanumConfig;
+import com.pedropathing.revhub.localizers.Encoder;
 import com.pedropathing.revhub.localizers.PinpointConfig;
 import com.pedropathing.revhub.localizers.PinpointLocalizer;
+import com.pedropathing.revhub.localizers.RevHubIMU;
 import com.pedropathing.revhub.localizers.ThreeWheelIMUConfig;
 import com.pedropathing.revhub.localizers.ThreeWheelIMULocalizer;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -46,15 +49,14 @@ public class Constants {
     // two drive codes will fight each other.
     // ------------------------------------------------------------------------
     public static MecanumConfig drivetrainConfig = new MecanumConfig(c -> {
-        c.frontLeftName.set(DriveConstants.FRONT_LEFT_NAME);
-        c.frontRightName.set(DriveConstants.FRONT_RIGHT_NAME);
-        c.backLeftName.set(DriveConstants.BACK_LEFT_NAME);
-        c.backRightName.set(DriveConstants.BACK_RIGHT_NAME);
-
-        c.frontLeftDirection.set(direction(DriveConstants.FRONT_LEFT_REVERSED));
-        c.frontRightDirection.set(direction(DriveConstants.FRONT_RIGHT_REVERSED));
-        c.backLeftDirection.set(direction(DriveConstants.BACK_LEFT_REVERSED));
-        c.backRightDirection.set(direction(DriveConstants.BACK_RIGHT_REVERSED));
+        c.frontLeftName.set("frontLeft");
+        c.frontRightName.set("frontRight");
+        c.backLeftName.set("backLeft");
+        c.backRightName.set("backRight");
+        c.frontLeftDirection.set(DcMotorSimple.Direction.REVERSE);
+        c.frontRightDirection.set(DcMotorSimple.Direction.FORWARD);
+        c.backLeftDirection.set(DcMotorSimple.Direction.REVERSE);
+        c.backRightDirection.set(DcMotorSimple.Direction.FORWARD);
     });
 
     // ------------------------------------------------------------------------
@@ -93,9 +95,25 @@ public class Constants {
     //   2. import what it uses: Encoder, RevHubIMU (com.pedropathing.revhub.
     //      localizers) and RevHubOrientationOnRobot (com.qualcomm.hardware.rev)
     //      — Alt+Enter on each red name.
-    public static ThreeWheelIMUConfig threeWheelIMUConfig = null;
-
-    // ------------------------------------------------------------------------
+    public static ThreeWheelIMUConfig threeWheelIMUConfig = new ThreeWheelIMUConfig(c -> {
+        c.leftEncoderName.set("backLeft");
+        c.rightEncoderName.set("backRight");
+        c.strafeEncoderName.set("frontRight");
+        c.imuName.set("imu");
+        c.imu.set(new RevHubIMU(new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
+        )));
+        c.leftPodY.set(0.7525681550863769);
+        c.rightPodY.set(-1.065799225041247);
+        c.strafePodX.set(2.3432569331541473E-4);
+        c.forwardTicksToInches.set(0.0018256853956331923);
+        c.strafeTicksToInches.set(5.664955852681442);
+        c.turnTicksToRadians.set(0.0014723117533340837);
+        c.leftEncoderDirection.set(Encoder.FORWARD);
+        c.rightEncoderDirection.set(Encoder.FORWARD);
+        c.strafeEncoderDirection.set(Encoder.FORWARD);
+    });
     // STEP 3 — Path follower. Replace `null` with Foresight Tuner output.
     //
     // Deliberately null until tuned. Every field is a physical measurement of

@@ -9,6 +9,8 @@ import com.pedropathing.revhub.drivetrains.Mecanum;
 import com.pedropathing.revhub.drivetrains.MecanumConfig;
 import com.pedropathing.revhub.localizers.PinpointConfig;
 import com.pedropathing.revhub.localizers.PinpointLocalizer;
+import com.pedropathing.revhub.localizers.ThreeWheelIMUConfig;
+import com.pedropathing.revhub.localizers.ThreeWheelIMULocalizer;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -25,7 +27,8 @@ import org.firstinspires.ftc.teamcode.util.DriveConstants;
  *
  * <ol>
  *   <li><b>Mecanum Tuner</b> → {@link #drivetrainConfig}</li>
- *   <li><b>Pinpoint Tuner</b> → {@link #localizerConfig}</li>
+ *   <li>Your localizer's tuner (see {@link #ODOMETRY}) →
+ *       {@link #localizerConfig} (Pinpoint) or {@link #threeWheelIMUConfig}</li>
  *   <li><b>Foresight Tuner</b> → {@link #foresightConfig}</li>
  *   <li><b>Tests</b> → confirm it all works before writing autonomous</li>
  * </ol>
@@ -55,13 +58,22 @@ public class Constants {
     });
 
     // ------------------------------------------------------------------------
-    // STEP 2 — Localizer. Replace with Pinpoint Tuner output.
+    // STEP 2 — Localizer. Pick ONE with ODOMETRY, then run its tuner.
     //
-    // The offsets and pod directions below are PLACEHOLDERS, not measurements.
-    // Using a different localizer (OTOS, three-wheel, two-wheel, OctoQuad)?
-    // Run that tuner instead, swap PinpointConfig for its config class here,
-    // and change localizer() below to match.
+    //   PINPOINT         goBILDA Pinpoint board        → Pinpoint Tuner
+    //   THREE_WHEEL_IMU  3 odometry pods + Hub IMU     → Three Wheel + IMU Tuner
+    //
+    // Other localizers (OTOS, two-wheel, three-wheel without IMU, OctoQuad)
+    // follow the same pattern: add a value here, a config below, and a case in
+    // localizer().
     // ------------------------------------------------------------------------
+    public enum Odometry { PINPOINT, THREE_WHEEL_IMU }
+
+    /** Which localizer the Follower, Foresight Tuner and Tests use. */
+    public static Odometry ODOMETRY = Odometry.THREE_WHEEL_IMU;
+
+    // PINPOINT — values below are PLACEHOLDERS, not measurements. Replace with
+    // Pinpoint Tuner output.
     public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
         c.name.set("pinpoint");  // must match the robot configuration
         c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
@@ -72,6 +84,16 @@ public class Constants {
         c.globalDistanceUnit.set(DistanceUnit.INCH);
         c.offsetUnits.set(DistanceUnit.INCH);
     });
+
+    // THREE_WHEEL_IMU — null until tuned. Paste the Three Wheel + IMU Tuner
+    // output over `null`, then:
+    //   1. rename the pasted `localizerConfig` to `threeWheelIMUConfig`
+    //      (the tuner always prints that name; ours is separate so a Pinpoint
+    //      config can live alongside it), and
+    //   2. import what it uses: Encoder, RevHubIMU (com.pedropathing.revhub.
+    //      localizers) and RevHubOrientationOnRobot (com.qualcomm.hardware.rev)
+    //      — Alt+Enter on each red name.
+    public static ThreeWheelIMUConfig threeWheelIMUConfig = null;
 
     // ------------------------------------------------------------------------
     // STEP 3 — Path follower. Replace `null` with Foresight Tuner output.
@@ -94,7 +116,20 @@ public class Constants {
     // ------------------------------------------------------------------------
 
     public static Localizer localizer(HardwareMap h) {
-        return new PinpointLocalizer(h, localizerConfig);
+        switch (ODOMETRY) {
+            case THREE_WHEEL_IMU:
+                if (threeWheelIMUConfig == null) {
+                    throw new IllegalStateException(
+                            "The Three Wheel + IMU localizer isn't tuned yet: run that tuner at "
+                            + "http://192.168.43.1:10158, paste its output into pedro/Constants.java "
+                            + "(threeWheelIMUConfig), and redeploy. Using a Pinpoint instead? Set "
+                            + "ODOMETRY = Odometry.PINPOINT.");
+                }
+                return new ThreeWheelIMULocalizer(h, threeWheelIMUConfig);
+            case PINPOINT:
+            default:
+                return new PinpointLocalizer(h, localizerConfig);
+        }
     }
 
     public static Drivetrain drivetrain(HardwareMap h) {
